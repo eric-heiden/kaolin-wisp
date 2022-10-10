@@ -101,8 +101,9 @@ class PackedSDFTracer(BaseTracer):
         # Doing things with where is not super efficient, but we have to make do with what we have...
         with torch.no_grad():
 
-            # Calculate SDF for current set of query points   
-            dist[mask] = nef(coords=x[mask], lod_idx=lod_idx, pidx=curr_pidx[mask], channels="sdf") * invres * step_size
+            # Calculate SDF for current set of query points 
+            nef_output = nef(coords=x[mask], lod_idx=lod_idx, pidx=curr_pidx[mask], channels="sdf") * invres * step_size  
+            dist[mask] = nef_output.type(torch.float32)
             dist[~mask] = 20
             dist_prev = dist.clone()
             timer.check("first")
@@ -134,7 +135,8 @@ class PackedSDFTracer(BaseTracer):
                 curr_pidx = torch.where(mask, pidx[curr_idxes.long()].long(), curr_pidx)
                 if not mask.any():
                     break
-                dist[mask] = nef(coords=x[mask], lod_idx=lod_idx, pidx=curr_pidx[mask], channels="sdf") * invres * step_size
+                nef_output = nef(coords=x[mask], lod_idx=lod_idx, pidx=curr_pidx[mask], channels="sdf") * invres * step_size
+                dist[mask] = nef_output.type(torch.float32)
             timer.check("step done")
     
         x_buffer = torch.zeros_like(rays.origins)

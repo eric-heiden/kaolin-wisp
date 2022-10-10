@@ -187,8 +187,9 @@ class BaseTrainer(ABC):
         params.append({"params" : grid_params,
                        "lr": self.lr * self.grid_lr_weight})
         
-        params.append({"params" : rest_params,
-                       "lr": self.lr})
+        if len(rest_params) > 0:
+            params.append({"params" : rest_params,
+                           "lr": self.lr})
 
         self.optimizer = self.optim_cls(params, **self.optim_params)
 

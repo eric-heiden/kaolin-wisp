@@ -13,3 +13,6 @@ _*/
 *.egg-info
 build
 imgui.ini
+
+.history/
+data/
